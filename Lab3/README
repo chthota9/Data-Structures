@@ -1,0 +1,10 @@
+Charishma Thota
+cthota
+
+Files Submitted:
+fileReverse.c
+Makefile
+README
+
+used 1st half of the code from the professor in his lab3 document
+also went on a stackoverflow link to find out the difference between char s[] and char *s
