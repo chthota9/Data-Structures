@@ -1,0 +1,610 @@
+  /*  public static boolean kingCheck(boolean play, LinkedList chess){
+                if(play){ //checks if the order is right
+                    Node dum = chess.head;
+                    while(dum != null){
+                         if ((dum.data.color) == 'k') {
+                             Node dum2 = chess.head;
+                             while(dum2 != null){
+                                 boolean attack = dum2.data.isAttacking(dum.data);
+                                 boolean thePiece = java.lang.Character.isUpperCase(dum.data.color);
+                                 boolean block = dum2.data.isBlocked(dum.data.col,dum.data.row,chess);
+                                 if(attack && thePiece && !block){
+                                     return false;
+                                 }
+                                 dum2 = dum2.next;
+                             }
+                             break;
+                         }
+                         dum = dum .next;
+                    }
+                }
+                else if(!play){ //if checking black 
+                    Node dummy = chess.head;
+                    while(dum != null){
+                         if ((dummy.data.color) == 'K') {
+                             Node dummmy2 = chess.head;
+                             while(dum2 != null){
+                                 boolean attack2 = dum2.data.isAttacking(dum.data);
+                                 boolean thePiece2 = java.lang.Character.isUpperCase(dum.data.color);
+                                 boolean block2 = dum2.data.isBlocked(dum.data.col,dum.data.row,chess);
+                                 if(attack2 && thePiece2 && !block2){
+                                     return false;
+                                 }
+                                 dummy2 = dummy2.next;
+                             }
+                             break;
+                         }
+                         dummy = dummy .next;
+                    }
+                }
+                return true;
+            } // end of kingCheck  */
+
+
+
+ //-----------------------------------------------------
+// ChessMoves.java
+// This program allows the user to 
+// 1. place several pieces on the board 
+// 2. check if the board is invalid (two pieces occupy the same square)
+// 3. check if a piece is in a certain spot and
+// 4. if any other pieces are attacking that piece
+// All of this is done through an input file, which is specified in the arguments
+//-----------------------------------------------------
+
+import java.io.*;
+import java.util.*;
+import java.util.Scanner;
+import java.lang.*;
+
+public class ChessMovess{
+    public static void main(String[] args) throws IOException{
+
+        if(args.length < 2){ // error checking
+    	    System.out.println("Usage: java –jar ChessBoard.jar <input file> <output file>");
+    	    System.exit(1);
+        }
+
+        FileReader inFile = new FileReader(args[0]); // sets up file reading and file writing
+        PrintWriter out = new PrintWriter(new FileWriter(args[1]));
+        BufferedReader reader = new BufferedReader(inFile);
+        String text; // for reading in input files
+        
+        String[] chessMoves; // arrays to be used later
+        String[] chessPieces;
+       
+        int theCol2; // vars to be used later
+        int theRow2;
+
+        char pieceType = 'a';
+
+        while ((text = reader.readLine()) != null){
+            LinkedList list = new LinkedList(); 
+            
+            String[] theInput = text.split(":");
+            chessPieces = theInput[0].split(" ");
+            String str = "";
+            //System.out.println("Before");
+            for (int i = 0; i< chessPieces.length; i=i+3){ // uses input to create all the different pieces
+                str = chessPieces[i];
+                pieceType = str.charAt(0);
+                theCol2 = Integer.parseInt(chessPieces[i+1]);
+                theRow2 = Integer.parseInt(chessPieces[i+2]);
+                list.insert(chooseType(pieceType, theCol2, theRow2));
+            } 
+
+            //System.out.println(54);
+            chessMoves = theInput[1].trim().split(" ");
+            int[] theMoves = new int[chessMoves.length];
+            //System.out.println("Before");
+            for (int j = 0; j < chessMoves.length; j++){ // initializes the array of sequence of moves
+                theMoves[j] = Integer.parseInt(chessMoves[j]);
+            }
+           // System.out.println("After");
+            int arrayCounter = 0; // var for keeping track of which move it is
+            boolean isLegal = true; // assuming everythings legal at first
+            boolean white = true; // for keeping track of which pieces turn to move
+
+            while(arrayCounter < (theMoves.length -1)){ // main program loop
+                ChessPiece thePiece = list.traverse(theMoves[arrayCounter],theMoves[arrayCounter +1]);
+                boolean check = pieceCheck(thePiece);
+                if (check == false){ // first check, if there even if a piece to move
+                    out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " +       
+                    theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                    System.out.println(78);
+                    out.println("illegal");
+                     isLegal = false;
+                     break;
+                }
+                
+                if(white){ // checking if the order is always white and then black 
+                    if ((java.lang.Character.isUpperCase(thePiece.color))){
+                        out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " +       
+                        theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                        System.out.println(87);
+                        out.println("illegal");
+                         isLegal = false;
+                         break;
+                    }
+                }
+                else if (!white){ // same as above
+                    if (!(java.lang.Character.isUpperCase(thePiece.color))){
+                        out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " +       
+                        theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                        out.println("illegal");
+                        System.out.println(97);
+                         isLegal = false;
+                         break;
+                    }
+                }
+                
+
+                if (canMove(list,thePiece,theMoves[arrayCounter +2],theMoves[arrayCounter+3])){
+                    if (list.traverse(theMoves[arrayCounter +2],theMoves[arrayCounter+3]) != null){
+                        Node dum3 = list.head;
+                        while(dum3 != null){
+                           // System.out.println("SDFGHJ");
+                            if (((dum3.data.col) == (theMoves[arrayCounter+2])) && 
+                            ((dum3.data.row) == (theMoves[arrayCounter+3]))){
+                              list.delete(dum3.data);
+                              break;
+                            }
+                            dum3 = dum3.next;
+                        }
+                        Node dum4 = list.head;
+                        while(dum4 != null){
+                            if (((dum4.data.col) == (thePiece.col)) && ((dum4.data.row) == (thePiece.row))){
+                                dum4.data.col = theMoves[arrayCounter +2];
+                                dum4.data.row = theMoves[arrayCounter +3];
+                                break;
+                            }
+                            dum4 = dum4.next;
+                        }
+                    }
+
+                    else{
+                        Node dum2 = list.head;
+                        while(dum2 != null){
+                           // System.out.println("SDFGHJ");
+                            if (((dum2.data.col) == (thePiece.col)) && ((dum2.data.row) == (thePiece.row))){
+                                dum2.data.col = theMoves[arrayCounter +2];
+                                dum2.data.row = theMoves[arrayCounter +3];
+                                break;
+                            }
+                            dum2 = dum2.next;
+                        }
+                    }
+
+                    // check if after moving, our king is being attacked
+                   
+                        if(white){ // checking if the order is always white and then black 
+                            Node dum5 = list.head;
+                            while(dum5 != null){
+                                //System.out.println("SDFGHJ");
+                                if ((dum5.data.color) == 'k'){ //dum5 is our king
+                                    Node dummy = list.head;
+                                    while (dummy != null ){
+                                        if (dummy.data.isAttacking(dum5.data) &&
+                                         java.lang.Character.isUpperCase(dummy.data.color) &&
+                                          !(dummy.data.isBlocked(dum5.data.col,dum5.data.row,list))){
+                                            out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " + 
+                                            theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                                            out.println("illegal");
+                                             isLegal = false;
+                                             System.out.println(154);
+                                             break;
+                                        }
+                                        dummy = dummy.next;
+                                    }
+                                    break;
+                                }
+                                dum5 = dum5.next;
+                            }
+                            if (!isLegal){
+                                break;
+                            }
+                            
+                        }
+                        else if (!white){ // same as above
+                            Node dum6 = list.head;
+                            while(dum6 != null){
+                                if ((dum6.data.color) == 'K'){
+                                    Node dummy2 = list.head;
+                                    while (dummy2 != null ){
+                                        if (dummy2.data.isAttacking(dum6.data)  &&
+                                        !(java.lang.Character.isUpperCase(dummy2.data.color))  &&
+                                        !(dummy2.data.isBlocked(dum6.data.col,dum6.data.row,list))){
+                                            out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " +       
+                                            theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                                            out.println("illegal");
+                                            System.out.println(178);
+                                             isLegal = false;
+                                             break;
+                                        }
+                                        dummy2 = dummy2.next;
+                                    }
+                                    break;
+                                }
+                                dum6 = dum6.next;
+                            }
+                            if (!isLegal){
+                                break;
+                            }
+                        }
+                }
+                else{
+                    out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " +       
+                    theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                    System.out.println(193);
+                    out.println("illegal");
+                     isLegal = false;
+                     break;
+                }
+                white = !white;
+                arrayCounter = arrayCounter + 4;
+                //System.out.println("SDFGHJ");
+            }
+            if (isLegal){
+                out.println("legal");
+            }
+            System.out.println("End of Program");
+        }
+        out.close(); // close file reader and file
+        inFile.close();
+    } // end of main
+
+    public static boolean pieceCheck(ChessPiece item) {
+         if(item == null) {
+                    return false;
+                }
+                return true; 
+    } 
+    public static ChessPiece chooseType(char type, int col, int row){ // returns a new piece of the right type
+        if ((type == 'k') || (type == 'K')){
+            return new King(col,row,type);
+        }
+        else if ((type == 'q') || (type == 'Q')){
+            return new Queen(col,row,type);
+        }
+        else if ((type == 'r') || (type == 'R')){
+            return new Rook(col,row,type);
+        }
+        else if ((type == 'b') || (type == 'B')){
+            return new Bishop(col,row,type);
+        }
+        else if((type == 'n') || (type == 'N')){
+            return new Knight(col,row,type);
+        }
+        else
+            return null;
+    } // end of chooseType
+
+    public static boolean canMove(LinkedList ll, ChessPiece p, int col, int row){ 
+    // row and col here are the possible place to move
+    Node dum = ll.head;
+    while (dum != null){ // checks if theres a piece at that rowcol
+       // System.out.println("SDFGHJ");
+        if ((dum.data.col == col) && (dum.data.row == row)){ // if there is a piece
+            if ((java.lang.Character.isUpperCase(p.color) && !(java.lang.Character.isUpperCase(dum.data.color))) || 
+            ((java.lang.Character.isUpperCase(dum.data.color) && !(java.lang.Character.isUpperCase(p.color))))){
+                Rook random = new Rook(col,row,'r');
+                if (p.isAttacking(random)){ // if the piece can go there
+                    if (p.isBlocked(col,row,ll)){
+                        return false;
+                    }
+                    else{ 
+                        return true;
+                    }
+                }
+                else {
+                    System.out.println(248);
+                    return false;
+                }
+            }
+            System.out.println(252);
+            return false;
+        }
+        dum = dum.next;
+    }
+    //if there is not a piece
+    Rook random2 = new Rook(col,row,'r');
+    if (p.isAttacking(random2)){ // if the piece can go there
+        if (p.isBlocked(col,row,ll)){
+            System.out.println(261);
+            return false;
+        }
+        return true;
+    }
+    else {
+        System.out.println(267);
+        return false;
+    }
+
+    } // end of canMove
+
+}
+
+
+
+
+SECOND ONEEE AHHHH
+//-----------------------------------------------------
+// ChessMoves.java
+// This program allows the user to 
+// 1. place several pieces on the board 
+// 2. check if the board is invalid (two pieces occupy the same square)
+// 3. check if a piece is in a certain spot and
+// 4. if any other pieces are attacking that piece
+// All of this is done through an input file, which is specified in the arguments
+//-----------------------------------------------------
+
+import java.io.*;
+import java.util.*;
+import java.util.Scanner;
+import java.lang.*;
+
+public class ChessMovess{
+    public static void main(String[] args) throws IOException{
+
+        if(args.length < 2){ // error checking
+    	    System.out.println("Usage: java –jar ChessBoard.jar <input file> <output file>");
+    	    System.exit(1);
+        }
+
+        FileReader inFile = new FileReader(args[0]); // sets up file reading and file writing
+        PrintWriter out = new PrintWriter(new FileWriter(args[1]));
+        BufferedReader reader = new BufferedReader(inFile);
+        String text; // for reading in input files
+        
+        String[] chessMoves; // arrays to be used later
+        String[] chessPieces;
+       
+        int theCol2; // vars to be used later
+        int theRow2;
+
+        char pieceType = 'a';
+
+        while ((text = reader.readLine()) != null){
+            LinkedList list = new LinkedList(); 
+            
+            String[] theInput = text.split(":");
+            chessPieces = theInput[0].split(" ");
+            String str = "";
+            //System.out.println("Before");
+            for (int i = 0; i< chessPieces.length; i=i+3){ // uses input to create all the different pieces
+                str = chessPieces[i];
+                pieceType = str.charAt(0);
+                theCol2 = Integer.parseInt(chessPieces[i+1]);
+                theRow2 = Integer.parseInt(chessPieces[i+2]);
+                list.insert(chooseType(pieceType, theCol2, theRow2));
+            } 
+
+            //System.out.println(54);
+            chessMoves = theInput[1].trim().split(" ");
+            int[] theMoves = new int[chessMoves.length];
+            //System.out.println("Before");
+            for (int j = 0; j < chessMoves.length; j++){ // initializes the array of sequence of moves
+                theMoves[j] = Integer.parseInt(chessMoves[j]);
+            }
+           // System.out.println("After");
+            int arrayCounter = 0; // var for keeping track of which move it is
+            boolean isLegal = true; // assuming everythings legal at first
+            boolean white = true; // for keeping track of which pieces turn to move
+
+            while(arrayCounter < (theMoves.length -1)){ // main program loop
+                ChessPiece thePiece = list.traverse(theMoves[arrayCounter],theMoves[arrayCounter +1]);
+                boolean check = pieceCheck(thePiece);
+                if (check == false){ // first check, if there even if a piece to move
+                    out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " +       
+                    theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                    out.println("illegal");
+                     isLegal = false;
+                     break;
+                }
+                
+                if(white){ // checking if the order is always white and then black 
+                    boolean turn = orderCheck(thePiece);
+                    if (turn == true){
+                        out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " + theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                        out.println("illegal");
+                         isLegal = false;
+                         break;
+                    }
+                }
+                else if (!white){ // same as above
+                    boolean turn2 = orderCheck(thePiece);
+                    if (turn2 == false){
+                        out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " + theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                        out.println("illegal");
+                         isLegal = false;
+                         break;
+                    }
+                }
+                
+
+                if (ability(list,thePiece,theMoves[arrayCounter +2],theMoves[arrayCounter+3])){
+                    if (list.traverse(theMoves[arrayCounter +2],theMoves[arrayCounter+3]) != null){
+                        Node dum = list.head;
+                        while(dum != null){
+                           // System.out.println("SDFGHJ");
+                            if (((dum.data.col) == (theMoves[arrayCounter+2])) && 
+                            ((dum.data.row) == (theMoves[arrayCounter+3]))){
+                              list.delete(dum.data);
+                              break;
+                            }
+                            dum = dum.next;
+                        }
+                        Node place = list.head;
+                        while(place != null){
+                            if (((place.data.col) == (thePiece.col)) && ((place.data.row) == (thePiece.row))){
+                                place.data.col = theMoves[arrayCounter +2];
+                                place.data.row = theMoves[arrayCounter +3];
+                                break;
+                            }
+                            place = place.next;
+                        }
+                    }
+
+                    else{
+                        Node dummy = list.head;
+                        while(dummy != null){
+                           // System.out.println("SDFGHJ");
+                            if (((dummy.data.col) == (thePiece.col)) && ((dummy.data.row) == (thePiece.row))){
+                                dummy.data.col = theMoves[arrayCounter +2];
+                                dummy.data.row = theMoves[arrayCounter +3];
+                                break;
+                            }
+                            dummy = dummy.next;
+                        }
+                    }
+
+                    // check if after moving, our king is being attacked
+                   
+                        if(white){ // checking if the order is always white and then black 
+                            Node hold = list.head;
+                            while(hold != null){
+                                //System.out.println("SDFGHJ");
+                                if ((hold.data.color) == 'k'){ //dum5 is our king
+                                    Node holder = list.head;
+                                    while (holder != null ){
+                                        boolean attack = holder.data.isAttacking(hold.data);
+                                        boolean item = java.lang.Character.isUpperCase(holder.data.color);
+                                        boolean block = holder.data.isBlocked(hold.data.col,hold.data.row,list);
+                                        if(attack && item && !block){
+                                            out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " + theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                                            out.println("illegal");
+                                             isLegal = false;
+                                             System.out.println(154);
+                                             break;
+                                        }
+                                        holder = holder.next;
+                                    }
+                                    break;
+                                }
+                                hold = hold.next;
+                            }
+                            if (!isLegal){
+                                break;
+                            }
+                            
+                        }
+                        else if (!white){ // same as above
+                            Node hold2 = list.head;
+                            while(hold2 != null){
+                                if ((hold2.data.color) == 'K'){
+                                    Node holder2 = list.head;
+                                    while (holder2 != null ){
+                                        boolean attack = holder2.data.isAttacking(hold2.data);
+                                        boolean item = java.lang.Character.isUpperCase(holder2.data.color);
+                                        boolean block = holder2.data.isBlocked(hold2.data.col,hold2.data.row,list);
+                                        if (attack && !item && !block){
+                                            out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " + theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                                            out.println("illegal");
+                                            System.out.println(178);
+                                             isLegal = false;
+                                             break;
+                                        }
+                                        holder2 = holder2.next;
+                                    }
+                                    break;
+                                }
+                                hold2 = hold2.next;
+                            }
+                            if (!isLegal){
+                                break;
+                            }
+                        }
+                }
+                else{
+                    out.print(theMoves[arrayCounter] + " " + theMoves[arrayCounter+1] + " " + theMoves[arrayCounter +2] + " " + theMoves[arrayCounter +3] + " ");
+                    System.out.println(193);
+                    out.println("illegal");
+                     isLegal = false;
+                     break;
+                }
+                white = !white;
+                arrayCounter = arrayCounter + 4;
+                //System.out.println("SDFGHJ");
+            }
+            if (isLegal){
+                out.println("legal");
+            }
+            System.out.println("End of Program");
+        }
+        out.close(); // close file reader and file
+        inFile.close();
+    } // end of main
+
+    public static boolean orderCheck(ChessPiece piece){
+         boolean upperCase = java.lang.Character.isUpperCase(piece.color);
+         return upperCase;
+    }
+
+    public static boolean pieceCheck(ChessPiece item) {
+         if(item == null) {
+                    return false;
+                }
+                return true; 
+    } 
+    public static ChessPiece chooseType(char type, int col, int row){ // returns a new piece of the right type
+        if ((type == 'k') || (type == 'K')){
+            return new King(col,row,type);
+        }
+        if ((type == 'q') || (type == 'Q')){
+            return new Queen(col,row,type);
+        }
+        if ((type == 'r') || (type == 'R')){
+            return new Rook(col,row,type);
+        }
+        if ((type == 'b') || (type == 'B')){
+            return new Bishop(col,row,type);
+        }
+        if((type == 'n') || (type == 'N')){
+            return new Knight(col,row,type);
+        }
+            return null;
+    } // end of chooseType
+
+    public static boolean ability(LinkedList ll, ChessPiece p, int col, int row){ 
+    // row and col here are the possible place to move
+    Node dum = ll.head;
+    while (dum != null){ // checks if theres a piece at that rowcol
+       // System.out.println("SDFGHJ");
+        if ((dum.data.col == col) && (dum.data.row == row)){ // if there is a piece
+            if ((java.lang.Character.isUpperCase(p.color) && !(java.lang.Character.isUpperCase(dum.data.color))) || 
+            ((java.lang.Character.isUpperCase(dum.data.color) && !(java.lang.Character.isUpperCase(p.color))))) {
+                if (p.isAttacking(dum.data)){ // if the piece can go there
+                    if (p.isBlocked(col,row,ll)){
+                        return false;
+                    }
+                    else{ 
+                        return true;
+                    }
+                }
+                else {
+                    System.out.println(248);
+                    return false;
+                }
+            }
+            System.out.println(252);
+            return false;
+        }
+        dum = dum.next;
+    }
+    //if there is not a piece
+    Rook random2 = new Rook(col,row,'r');
+    if (p.isAttacking(random2)){ // if the piece can go there
+        if (p.isBlocked(col,row,ll)){
+            System.out.println(261);
+            return false;
+        }
+        return true;
+    }
+    else {
+        System.out.println(267);
+        return false;
+    }
+
+    } // end of canMove
+
+}

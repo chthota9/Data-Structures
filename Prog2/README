@@ -1,0 +1,19 @@
+Charishma Thota
+cthota
+
+Files Submitted:
+ChessBoard.java
+ChessPiece.java
+LinkedList.java
+Node.java
+Queen.java
+King.java
+Bishop.java
+Rook.java
+Knight.java
+README
+Makefile
+
+Queen.java code used from professor sesh's NQueens.java 
+for isRepeating method: converesed with Keerthanadevi Manivannan
+

@@ -1,0 +1,28 @@
+Charishma Thota
+cthota
+
+Files Submitted:
+    Bard.java
+    Word.java
+    Makefile
+    README
+    shakespeare.txt
+
+Soures:
+    converesed with Keerthanadevi Manivannan
+    Information about HashTables and Set: https://www.tutorialspoint.com/java/java_hashtable_class.htm
+                                          https://stackoverflow.com/questions/29324/how-do-i-create-a-hash-table-in-java
+                                          https://docs.oracle.com/javase/7/docs/api/java/util/Hashtable.html
+                                          https://www.tutorialspoint.com/java/util/hashmap_containskey.htm
+                                          http://www.java2novice.com/java-collections-and-util/hashtable/iterate/                                     
+    Information on string replaceAll: https://www.javatpoint.com/java-string-replace
+                                      https://stackoverflow.com/questions/21946042/
+    Information on sorting: https://stackoverflow.com/questions/26625689/read-words-from-txt-file-and-sort-them
+                            https://www.tutorialspoint.com/java/java_using_comparator.htm
+                            https://docs.oracle.com/javase/7/docs/api/java/util/Collections.html
+                            https://stackoverflow.com/questions/16425127/how-to-use-collections-sort-in-java-specific-situation
+                            https://docs.oracle.com/javase/6/docs/api/java/util/Comparator.html
+    Used some information for Word.java from Prof Sesh lecture notes in class.                                                          
+
+                                      
+                                      
